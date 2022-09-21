@@ -1,0 +1,49 @@
+version: '3'
+#AppleSilicon_M1チップを使用した新しいMacの場合、
+#platformに「linux/amd64」を指定する必要がある。
+#対象のPCの場合はplatformのコメントアウトを外す。
+
+services:
+  web:
+    #platform: linux/amd64
+    container_name: Vue_web
+    # ./web/Dockerfile でイメージをビルド
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    # db 起動後に web を起動
+    depends_on:
+      - db
+    # 80 番ポートを割り当て
+    ports:
+      - '80:80'
+    # ローカル の ./fm_items_dev フォルダを
+    # コンテナの /var/www/fm_items_dev にマウント
+    volumes:
+      - './html:/var/www/html'
+
+  # MySQL
+  db:
+    #platform: linux/amd64
+    container_name: vue_db
+    image: mysql:8.0
+    volumes:
+      - './db:/docker-entrypoint-initdb.d'
+    environment:
+      MYSQL_DATABASE: vue
+      MYSQL_USER: vue-user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+
+  # phpMyAdmin
+  pma:
+    container_name: vue_pma
+    image: phpmyadmin/phpmyadmin:5.0
+    depends_on:
+      - db
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: vue_db
+      PMA_USER: root
+      PMA_PASSWORD: root
