@@ -9,7 +9,7 @@ services:
     container_name: Vue_web
     # ./web/Dockerfile でイメージをビルド
     build:
-      context: ./web
+      context: ./docker/web
       dockerfile: Dockerfile
     # db 起動後に web を起動
     depends_on:
@@ -17,10 +17,12 @@ services:
     # 80 番ポートを割り当て
     ports:
       - '80:80'
-    # ローカル の ./fm_items_dev フォルダを
-    # コンテナの /var/www/fm_items_dev にマウント
+    # ローカル の ./ フォルダを
+    # コンテナの /var/www/html にマウント
     volumes:
       - './html:/var/www/html'
+    networks:
+      - vue
 
   # MySQL
   db:
@@ -28,12 +30,14 @@ services:
     container_name: vue_db
     image: mysql:8.0
     volumes:
-      - './db:/docker-entrypoint-initdb.d'
+      - './docker/db:/docker-entrypoint-initdb.d'
     environment:
       MYSQL_DATABASE: vue
       MYSQL_USER: vue-user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: root
+    networks:
+      - vue
 
   # phpMyAdmin
   pma:
@@ -47,3 +51,40 @@ services:
       PMA_HOST: vue_db
       PMA_USER: root
       PMA_PASSWORD: root
+    networks:
+      - vue
+
+  redis:
+    build: ./docker/redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis:/data
+    networks:
+      - vue
+
+  mailcatcher:
+    build: ./docker/mailcatcher
+    ports:
+      - "${MAILCATCHER_PORT}:1080"
+    networks:
+      - vue
+  minio:
+    build: ./docker/minio
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio:/data
+    networks:
+      - vue
+
+volumes:
+  mysql:
+  redis:
+  minio:
+networks:
+  vue:

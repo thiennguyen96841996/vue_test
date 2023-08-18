@@ -10,8 +10,8 @@ clean-build:
 shell:
 	docker compose exec web bash
 
-db:
-	docker compose exec db bash
+web:
+	docker-compose exec Vue_web bash
 
 ps:
 	docker ps -a
