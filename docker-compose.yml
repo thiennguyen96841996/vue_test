@@ -5,7 +5,7 @@ version: '3'
 
 services:
   web:
-    #platform: linux/amd64
+    platform: linux/amd64
     container_name: Vue_web
     # ./web/Dockerfile でイメージをビルド
     build:
@@ -17,6 +17,7 @@ services:
     # 80 番ポートを割り当て
     ports:
       - '80:80'
+      - '5173:5173'
     # ローカル の ./ フォルダを
     # コンテナの /var/www/html にマウント
     volumes:

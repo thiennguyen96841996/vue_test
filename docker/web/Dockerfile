@@ -40,3 +40,6 @@ ADD 000-default.conf /etc/apache2/sites-enabled/
     && a2enmod rewrite
 
   RUN apt-get update && apt-get install -y libzip-dev libpng-dev && docker-php-ext-install zip gd
+
+EXPOSE 80
+EXPOSE 5173
